@@ -31,9 +31,9 @@ public class MonitorWindowsUpdate {
 
 	private static void stopAndDisableService() {
 		System.out.println("Serviço Windows Update ativo. Parando e desabilitando...");
-		executeCommand("net stop wuauserv");
 		executeCommand("sc config wuauserv start= disabled");
-		System.out.println("Serviço parado e desabilitado.");
+		executeCommand("net stop wuauserv");
+		System.out.println("Serviço desabilitado e parado.");
 	}
 
 	private static String executeCommand(String command) {
