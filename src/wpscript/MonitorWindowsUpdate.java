@@ -3,6 +3,9 @@ package wpscript;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,9 +13,27 @@ import java.util.concurrent.TimeUnit;
 public class MonitorWindowsUpdate {
 
 	private static final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private static final int INTERVAL_MINUTES = 15;
+	private static LocalDateTime nextExecutionTime;
 
 	public static void main(String[] args) {
-		scheduler.scheduleAtFixedRate(MonitorWindowsUpdate::monitorService, 0, 5, TimeUnit.MINUTES);
+		System.out.println("Monitoramento iniciado: " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+		monitorService();
+		scheduleNextExecution();
+	}
+
+	private static void scheduleNextExecution() {
+		nextExecutionTime = LocalDateTime.now().plusMinutes(INTERVAL_MINUTES);
+		System.out.println("Próxima verificação: " + formatTime(nextExecutionTime));
+		scheduler.scheduleAtFixedRate(() -> {
+			monitorService();
+			nextExecutionTime = nextExecutionTime.plusMinutes(INTERVAL_MINUTES);
+			System.out.println("Próxima verificação: " + formatTime(nextExecutionTime));
+		}, INTERVAL_MINUTES, INTERVAL_MINUTES, TimeUnit.MINUTES);
+	}
+
+	private static String formatTime(LocalDateTime time) {
+		return time.format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 	}
 
 	private static void monitorService() {
